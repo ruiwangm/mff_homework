@@ -110,3 +110,48 @@ plot(simRets3)
 set(gca,'yLim',ax.YLim)
 
 %%%% Exercise 2: Fat Tails
+%% kernel estimate of real data
+figure('position', [50 50 1200 600])
+
+ksdensity(logRets)
+
+
+%% normal estimate
+[mu, sigma] = normfit(logRets);
+
+x=-25:0.1:25;
+
+hold on;
+plot(x,normpdf(x,mu,sigma),'red')
+
+%% kernel estimate of GARCH
+[V,x]=simulate(EstMdl,40000);
+
+[f,xi] = ksdensity(x);
+
+hold on;
+
+plot(xi,f,'green');
+
+set(gca,'xLim',[-25 25])
+
+%% GARCH with t-distributed innovations
+Mdl_t = garch('Offset',NaN,'GARCHLags',1,'ARCHLags',1,'Distribution','t');
+
+EstMdl_t=estimate(Mdl_t,logRets);
+
+%% kernel estimate of new GARCH
+
+[V,x]=simulate(EstMdl_t,40000);
+
+[f,xi] = ksdensity(x);
+
+hold on;
+
+plot(xi,f,'black')
+
+set(gca,'xLim',[-25 25])
+
+%% which is the best?
+% GARCH with t-distributed innovations
+
