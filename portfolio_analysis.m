@@ -15,6 +15,7 @@ daxComp = {'ADS.DE', 'ALV.DE','BAS.DE', 'BAYN.DE', 'BEI.DE', ...
 
 data = getPrices(dateBeg, dateEnd, daxComp);
 
+
 %% estimate mean and standard deviation of percentage discrete returns
 
 % calculate percentage discrete returns
@@ -22,7 +23,7 @@ discreteRetsTable = price2discreteRetWithHolidays(data);
 
 discreteRets = 100*discreteRetsTable{:, :};
 
-% estimate mean and std
+% estimate mean and std, as tables
 mu=array2table(zeros(1,30));
 mu.Properties.VariableNames=data.Properties.VariableNames;
 mu.Properties.RowNames = {'mean'};
@@ -38,7 +39,7 @@ for i=1:30
 end
 
 
-%% estimate correlation coefficients
+%% estimate correlation coefficients, arranged into a table rho
 
 rho=array2table(ones(30,30));
 rho.Properties.VariableNames=data.Properties.VariableNames;
@@ -68,6 +69,8 @@ end
 
 histogram(rho_values,20)
 
+title('Histogram of Estimated Correlation Coefficients')
+
 %% display the pair with the highest correlation coefficients
 
 rho_max=max(rho_values);
@@ -81,7 +84,7 @@ for i=1:30
 end
 
 
-%% plot standard deviation and mean
+%% plot standard deviation and mean for each stock
 
 figure('position', [50 50 1200 600])
 
@@ -93,10 +96,13 @@ scatter(sigma{:,:}, mu{:,:}, 15, 'red', 'filled')
 tickSymbs_dual={'DBK_DE','DPW_DE'};
 
 k=200;
+
 w=rand(k,1);
+
+% matrix of simulated weights
 weightMat_dual=[w 1-w];
 
-% covariance matrix of (DBK.DE, DPW.DE)
+% calculate covariance matrix of (DBK.DE, DPW.DE)
 covMat_dual=diag(sigma{1,tickSymbs_dual})*rho{tickSymbs_dual,...
     tickSymbs_dual}*diag(sigma{1,tickSymbs_dual});
 
@@ -110,15 +116,16 @@ for i=1:k
         weightMat_dual(i,:)');
 end
 
-
+% add standard deviation and mean for each portfolio
 hold on;
 
 scatter(sigma_dual, mu_dual, 15, 'blue', 'filled')
 
+% highlight standard deviation and mean for (DBK.DE, DPW.DE)
 hold on;
 
 scatter(sigma{1,tickSymbs_dual},mu{1,tickSymbs_dual}, ...
-    30, 'green', 'filled')
+    35, 'green', 'filled')
 
 
 %% portfolio of DBK.DE, DPW.DE, TKA.DE and CBK.DE
@@ -129,9 +136,10 @@ n=50000;
 
 w=rand(n,4);
 
+% matrix of simulated weights
 weightMat_quad=w./kron(ones(1,4),sum(w,2));
 
-% covariance matrix of (DBK.DE, DPW.DE, TKA.DE, CBK.DE)
+% calculate covariance matrix of (DBK.DE, DPW.DE, TKA.DE, CBK.DE)
 covMat_quad=diag(sigma{1,tickSymbs_quad})*rho{tickSymbs_quad,...
     tickSymbs_quad}*diag(sigma{1,tickSymbs_quad});
 
@@ -145,18 +153,30 @@ for i=1:n
         weightMat_quad(i,:)');
 end
 
+% plot standard deviation and mean for each stock
 figure('position', [50 50 1200 600])
 
-scatter(sigma_quad, mu_quad, 8, 'red', 'filled')
+scatter(sigma{:,:}, mu{:,:}, 15, 'red', 'filled')
 
+% add standard deviation and mean for each portfolio
+hold on;
+
+scatter(sigma_quad, mu_quad, 15, 'blue', 'filled')
+
+% highlight standard deviation and mean for 
+% (DBK.DE, DPW.DE, TKA.DE, CBK.DE)
 hold on;
 
 scatter(sigma{1,tickSymbs_quad},mu{1,tickSymbs_quad}, ...
-    30, 'green', 'filled')
+    35, 'green', 'filled')
+
 
 %% analysis of the findings
-%
-%
+
+% The desirable points lie on the boundary of the set of all possible
+% outcomes and above the point with the minimum variance.
+
+% The set of optimal points is expected to be the top half of a parabola.
 
 
 
