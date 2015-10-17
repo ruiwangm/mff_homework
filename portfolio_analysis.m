@@ -176,7 +176,8 @@ scatter(sigma{1,tickSymbs_quad},mu{1,tickSymbs_quad}, ...
 % The desirable points lie on the boundary of the set of all possible
 % outcomes and above the point with the minimum variance.
 
-% The set of optimal points is expected to be the top half of a parabola.
+% The set of optimal points is expected to be the top half of a branch of 
+% a hyperbola.
 
 
 
