@@ -4,7 +4,7 @@ function retsTable = price2discreteRetWithHolidays(prices)
 %   prices      nxm table of prices
 %
 % Output:
-%   retsTable   (n-1)xm table of log returns
+%   retsTable   (n-1)xm table of discrete returns
 
 missingValues = isnan(prices{:, :});
 
@@ -15,7 +15,7 @@ rets = pricesImputed(2:end, :)./pricesImputed(1:end-1, :)-1;
 
 rets(missingValues(2:end, :)) = NaN;
 
-% return log returns as table
+% return discrete returns as table
 retsTable = prices(2:end, :);
 retsTable{:, :} = rets;
 
