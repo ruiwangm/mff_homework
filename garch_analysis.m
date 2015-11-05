@@ -22,6 +22,7 @@ logRets = 100*logRetsTable{:, :};
 
 %% estimate GARCH
 
+% well done including an 'offset'!
 Mdl = garch('Offset',NaN,'GARCHLags',1,'ARCHLags',1);
 
 EstMdl=estimate(Mdl,logRets);
@@ -31,6 +32,11 @@ EstMdl=estimate(Mdl,logRets);
 
 % estimate VAR
 muHat=EstMdl.Offset;
+% quite puzzling that the estimated offset is so different to the empirical
+% mean
+muHat2 = mean(logRets);
+% in principle, however, your way of including the parameter into the GARCH
+% equation right away is the more efficient way of estimating it.
 
 sigmaHat=sqrt(infer(EstMdl,logRets));
 
