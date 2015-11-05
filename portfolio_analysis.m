@@ -24,42 +24,34 @@ discreteRetsTable = price2discreteRetWithHolidays(data);
 discreteRets = 100*discreteRetsTable{:, :};
 
 % estimate mean and std, as tables
-mu=array2table(zeros(1,30));
+
+% no for loop required - use mean(xx, 1) and std(xx, 1):
+mu = mean(discreteRets, 1, 'omitnan');
+mu=array2table(mu);
 mu.Properties.VariableNames=data.Properties.VariableNames;
 mu.Properties.RowNames = {'mean'};
 
-sigma=array2table(zeros(1,30));
+sigma = std(discreteRets, 1, 'omitnan');
+sigma=array2table(sigma);
 sigma.Properties.VariableNames=data.Properties.VariableNames;
 sigma.Properties.RowNames = {'std'};
-
-for i=1:30
-    val=discreteRets(:,i);
-    mu{1,i}=mean(val(~isnan(val)));
-    sigma{1,i}=std(val(~isnan(val)));
-end
 
 
 %% estimate correlation coefficients, arranged into a table rho
 
-rho=array2table(ones(30,30));
+
+% also, get rid of for loop
+rho = corrcoef(discreteRets, 'rows', 'pairwise');
+
+% make it a table also
+rho=array2table(rho);
 rho.Properties.VariableNames=data.Properties.VariableNames;
 rho.Properties.RowNames=data.Properties.VariableNames;
-
-for i=1:30
-    val_1=discreteRets(:,i);
-    ind_1=~isnan(val_1);
-    for j=(i+1):30
-        val_2=discreteRets(:,j);
-        ind=ind_1 & (~isnan(val_2));
-        r=corrcoef(val_1(ind),val_2(ind));
-        rho{i,j}=r(1,2);
-        rho{j,i}=r(1,2);
-    end
-end
 
 
 %% histogram of correlation coefficients
 
+% you could get rid of for loop by using triangular function tril
 rho_values=[];
 for i=1:30
     for j=(i+1):30
@@ -75,13 +67,11 @@ title('Histogram of Estimated Correlation Coefficients')
 
 rho_max=max(rho_values);
 
-for i=1:30
-    for j=(i+1):30
-        if rho{i,j}==rho_max
-            display({daxComp{i} daxComp{j}});
-        end
-    end
-end
+% use elementwise comparison
+[row, col] = find(rho{:,:} == rho_max);
+
+display(daxComp(row(1)))
+display(daxComp(col(1)))
 
 
 %% plot standard deviation and mean for each stock
